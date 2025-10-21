@@ -34,11 +34,11 @@ const navItems = [
     href: "/notifications",
     icon: Bell,
   },
-  {
-    title: "Subscriptions",
-    href: "/subscriptions",
-    icon: CreditCard,
-  },
+  // {
+  //   title: "Subscriptions",
+  //   href: "/subscriptions",
+  //   icon: CreditCard,
+  // },
 ];
 
 const authItems = [

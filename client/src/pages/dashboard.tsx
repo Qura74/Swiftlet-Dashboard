@@ -40,7 +40,7 @@ export default function Dashboard() {
       </Card>
 
       <StatsGrid />
-      <ProjectsTable />
+      {/* <ProjectsTable /> */}
       <ChartsShowcase />
     </div>
   );
