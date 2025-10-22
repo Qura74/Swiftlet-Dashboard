@@ -1,6 +1,6 @@
 import mqtt, { MqttClient } from "mqtt";
 
-const MQTT_URL = "wss://test.mosquitto.org:8080";
+const MQTT_URL = "wss://test.mosquitto.org:8081";
 const TOPIC = "swiftlet/env";
 
 export const connectMqtt = (onData: (data: any) => void): MqttClient => {
