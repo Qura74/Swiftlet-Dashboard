@@ -1,5 +1,6 @@
 "use client";
 
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
@@ -38,7 +39,7 @@ export function AlertHistoryChart() {
   ]);
 
   useEffect(() => {
-    // ✅ Subscribe to MQTT topic for alert history
+    // Subscribe to MQTT topic for alert history
     const client: MqttClient = connectMqtt("swiftlet/alerts/history", (incoming) => {
       if (incoming.alerts && Array.isArray(incoming.alerts)) {
         setAlertData((prev) =>
@@ -50,7 +51,7 @@ export function AlertHistoryChart() {
       }
     });
 
-    // 🧪 Mock data for testing UI
+    //Mock data for testing UI
     const test = setTimeout(() => {
       setAlertData([
         { month: "Jan", alerts: 2 },
@@ -81,7 +82,7 @@ export function AlertHistoryChart() {
     },
   };
 
-  // 🧮 Total yearly alerts
+  // Total yearly alerts
   const totalAlerts = alertData.reduce((sum, m) => sum + m.alerts, 0);
 
   return (
@@ -89,8 +90,9 @@ export function AlertHistoryChart() {
       <Card className="border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            🚨 Alert History
+           icons: Alert History
           </CardTitle>
+          
           <p className="text-sm text-gray-500">
             Monthly summary of alerts recorded from January to December.
           </p>

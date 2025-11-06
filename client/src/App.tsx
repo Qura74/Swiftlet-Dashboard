@@ -10,8 +10,11 @@ import { Footer } from "@/components/layout/footer";
 import { ThemeConfigurator } from "@/components/theme-configurator";
 import { Menu } from "lucide-react";
 import { useState } from "react";
-import Dashboard from "@/pages/dashboard";
-import Profile from "@/pages/profile";
+
+// Pages
+import Dashboard from "@/pages/Dashboard/dashboard";
+import SwiftletDetails from "@/pages/Dashboard/swiftlet-details";
+import Profile from "@/pages/Sites/site";
 import Tables from "@/pages/tables";
 import Notifications from "@/pages/notifications";
 import Subscriptions from "@/pages/subscriptions";
@@ -20,7 +23,18 @@ import SignIn from "@/pages/auth/sign-in";
 import SignUp from "@/pages/auth/sign-up";
 import NotFound from "@/pages/not-found";
 
-function Layout({ children, title, description }: { children: React.ReactNode; title?: string; description?: string }) {
+// Auth
+import { AuthProvider, RequireAuth } from "@/lib/auth";
+
+function Layout({
+  children,
+  title,
+  description,
+}: {
+  children: React.ReactNode;
+  title?: string;
+  description?: string;
+}) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [themeConfigOpen, setThemeConfigOpen] = useState(false);
 
@@ -28,23 +42,24 @@ function Layout({ children, title, description }: { children: React.ReactNode; t
     <div className="flex h-screen bg-stone-50 grain-texture">
       {/* Mobile overlay */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
-      
+
       {/* Sidebar */}
-      <div className={`
-        fixed lg:static inset-y-0 left-0 z-50 lg:z-10
-        transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0
-        transition-transform duration-300 ease-in-out
-      `}>
+      <div
+        className={`fixed lg:static inset-y-0 left-0 z-50 lg:z-10 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0 transition-transform duration-300 ease-in-out`}
+      >
         <Sidebar onClose={() => setSidebarOpen(false)} />
       </div>
-      
+
+      {/* Main content */}
       <main className="flex-1 overflow-y-auto p-3 lg:p-6 relative z-10 flex flex-col">
-        {/* Mobile header with burger menu */}
+        {/* Mobile header (burger menu) */}
         <div className="lg:hidden mb-4">
           <Button
             variant="ghost"
@@ -55,11 +70,13 @@ function Layout({ children, title, description }: { children: React.ReactNode; t
             <Menu className="h-6 w-6" />
           </Button>
         </div>
-        
+
         <Card className="flex-1 border border-stone-200 bg-white relative z-20">
           {title && (
             <div className="pt-6 px-3 lg:px-6 pb-4">
-              <h1 className="text-xl font-semibold text-stone-900 mb-1">{title}</h1>
+              <h1 className="text-xl font-semibold text-stone-900 mb-1">
+                {title}
+              </h1>
               {description && (
                 <p className="text-sm text-stone-600">{description}</p>
               )}
@@ -70,11 +87,11 @@ function Layout({ children, title, description }: { children: React.ReactNode; t
         </Card>
         <Footer />
       </main>
-      
-      {/* Theme Configurator Modal - Outside sidebar for proper z-index */}
-      <ThemeConfigurator 
-        isOpen={themeConfigOpen} 
-        onClose={() => setThemeConfigOpen(false)} 
+
+      {/* Theme Configurator Modal */}
+      <ThemeConfigurator
+        isOpen={themeConfigOpen}
+        onClose={() => setThemeConfigOpen(false)}
       />
     </div>
   );
@@ -83,38 +100,108 @@ function Layout({ children, title, description }: { children: React.ReactNode; t
 function Router() {
   return (
     <Routes>
-      <Route path="/" element={
-        <Layout>
-          <Dashboard />
-        </Layout>
-      } />
-      <Route path="/profile" element={
-        <Layout title="Profile" description="Manage your account settings and personal information">
-          <Profile />
-        </Layout>
-      } />
-      <Route path="/tables" element={
-        <Layout title="Tables" description="Browse and manage data across different views">
-          <Tables />
-        </Layout>
-      } />
-      <Route path="/notifications" element={
-        <Layout title="Notifications" description="Stay updated with your latest alerts and messages">
-          <Notifications />
-        </Layout>
-      } />
-      <Route path="/subscriptions" element={
-        <Layout title="Subscriptions" description="Manage your billing, plans, and subscription settings">
-          <Subscriptions />
-        </Layout>
-      } />
-      <Route path="/documentation" element={
-        <Layout title="Documentation" description="Installation guide, component examples, and project information">
-          <Documentation />
-        </Layout>
-      } />
+      {/* ✅ Auth routes */}
+      <Route path="/" element={<SignIn />} />
       <Route path="/auth/sign-in" element={<SignIn />} />
       <Route path="/auth/sign-up" element={<SignUp />} />
+
+      {/* ✅ Protected routes */}
+      <Route
+        path="/dashboard"
+        element={
+          <RequireAuth>
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </RequireAuth>
+        }
+      />
+
+      <Route
+        path="/swiftlet-details"
+        element={
+          <RequireAuth>
+            <Layout
+              title="Swiftlet Site Details"
+              description="View and control sensors for your selected Swiftlet site."
+            >
+              <SwiftletDetails />
+            </Layout>
+          </RequireAuth>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <RequireAuth>
+            <Layout
+              title="Profile"
+              description="Manage your account settings and personal information"
+            >
+              <Profile />
+            </Layout>
+          </RequireAuth>
+        }
+      />
+
+      <Route
+        path="/tables"
+        element={
+          <RequireAuth>
+            <Layout
+              title="Tables"
+              description="Browse and manage data across different views"
+            >
+              <Tables />
+            </Layout>
+          </RequireAuth>
+        }
+      />
+
+      <Route
+        path="/notifications"
+        element={
+          <RequireAuth>
+            <Layout
+              title="Notifications"
+              description="Stay updated with your latest alerts and messages"
+            >
+              <Notifications />
+            </Layout>
+          </RequireAuth>
+        }
+      />
+
+      <Route
+        path="/subscriptions"
+        element={
+          <RequireAuth>
+            <Layout
+              title="Subscriptions"
+              description="Manage your billing, plans, and subscription settings"
+            >
+              <Subscriptions />
+            </Layout>
+          </RequireAuth>
+        }
+      />
+
+      <Route
+        path="/documentation"
+        element={
+          <RequireAuth>
+            <Layout
+              title="Documentation"
+              description="Installation guide, component examples, and project information"
+            >
+              <Documentation />
+            </Layout>
+          </RequireAuth>
+        }
+      />
+
+      {/* 404 fallback */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
@@ -124,10 +211,12 @@ function App() {
   return (
     <HashRouter>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </HashRouter>
   );

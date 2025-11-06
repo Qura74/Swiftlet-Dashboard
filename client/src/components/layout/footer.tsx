@@ -18,9 +18,9 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Creative Tim
+                Rogon network
               </a>{" "}
-              for a better web.
+              
             </div>
           </div>
           <div className="flex space-x-6">
@@ -30,7 +30,7 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              Creative Tim
+              Rogon network
             </a>
             <a
               href="https://www.creative-tim.com/presentation"

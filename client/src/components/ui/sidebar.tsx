@@ -16,6 +16,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
+import { SimpleTooltip } from "@/components/ui/tooltip"
 import {
   Tooltip,
   TooltipContent,
@@ -579,23 +580,18 @@ const SidebarMenuButton = React.forwardRef<
       return button
     }
 
-    if (typeof tooltip === "string") {
-      tooltip = {
-        children: tooltip,
-      }
-    }
+    if (state === "collapsed" && !isMobile && tooltip) {
+  const tooltipContent =
+    typeof tooltip === "string" ? tooltip : tooltip.children
 
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>{button}</TooltipTrigger>
-        <TooltipContent
-          side="right"
-          align="center"
-          hidden={state !== "collapsed" || isMobile}
-          {...tooltip}
-        />
-      </Tooltip>
-    )
+  return (
+    <SimpleTooltip content={tooltipContent} side="right">
+      {button}
+    </SimpleTooltip>
+  )
+}
+
+return button
   }
 )
 SidebarMenuButton.displayName = "SidebarMenuButton"

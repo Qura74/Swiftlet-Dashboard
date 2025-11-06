@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BirdIcon } from "lucide-react"; // ✅ using Lucide icon
 import "leaflet/dist/leaflet.css";
 
 export default function SwiftletMap() {
@@ -25,14 +26,10 @@ export default function SwiftletMap() {
       const { MapContainer, TileLayer, Marker, Popup } = leaflet;
 
       // ✅ List of all swiftlet locations
-      const swiftletLocations: {
-        name: string;
-        position: [number, number];
-        address: string;
-      }[] = [
+      const swiftletLocations = [
         {
           name: "Sabah Swiftlet Farm",
-          position: [5.8943, 116.0406], 
+          position: [5.8943, 116.0406],
           address: "Petagas, Sabah, Malaysia",
         },
         {
@@ -53,7 +50,7 @@ export default function SwiftletMap() {
           }}
         >
           <MapContainer
-            center={swiftletLocations[0].position}
+            center={swiftletLocations[0].position as [number, number]}
             zoom={14}
             style={{ height: "100%", width: "100%" }}
             scrollWheelZoom={true}
@@ -65,15 +62,17 @@ export default function SwiftletMap() {
 
             {/* ✅ Render all markers dynamically */}
             {swiftletLocations.map((farm, i) => (
-              <Marker key={i} position={farm.position}>
+              <Marker key={i} position={farm.position as [number, number]}>
                 <Popup>
-                  🐦 <b>{farm.name}</b>
-                  <br />
-                  {farm.address}
-                  <br />
+                  {/* 🐦 replaced with icon */}
+                  <div className="flex items-center gap-2">
+                    <BirdIcon className="w-5 h-5 text-black-600" />
+                    <b>{farm.name}</b>
+                  </div>
+                  <div className="mt-1 text-sm text-gray-600">{farm.address}</div>
                   <a
                     href={`#/swiftlet-details?name=${encodeURIComponent(farm.name)}`}
-                    className="text-blue-600 hover:underline"
+                    className="text-blue-600 hover:underline text-sm mt-1 inline-block"
                   >
                     View Details →
                   </a>

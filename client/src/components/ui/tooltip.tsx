@@ -28,3 +28,30 @@ const TooltipContent = React.forwardRef<
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+
+// Add this below your current exports
+
+interface SimpleTooltipProps {
+  content: React.ReactNode
+  children: React.ReactNode
+  side?: "top" | "right" | "bottom" | "left"
+}
+
+
+export function SimpleTooltip({
+  content,
+  children,
+  side = "right",
+}: SimpleTooltipProps) {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipContent side={side}>
+          {content}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
+}
+

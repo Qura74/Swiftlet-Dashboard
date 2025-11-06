@@ -1,150 +1,165 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { useState } from "react";
+import type { User } from "firebase/auth";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { 
-  LayoutDashboard, 
-  User, 
-  Table, 
+import {
+  House,
   Bell,
-  CreditCard,
-  BookOpen,
-  LogIn, 
+  Table,
+  Settings,
   UserPlus,
-  X
+  LogOut,
+  X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 
-const navItems = [
-  {
-    title: "Dashboard",
-    href: "/",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Profile",
-    href: "/profile",
-    icon: User,
-  },
-  {
-    title: "Tables",
-    href: "/tables",
-    icon: Table,
-  },
-  {
-    title: "Notifications",
-    href: "/notifications",
-    icon: Bell,
-  },
-  // {
-  //   title: "Subscriptions",
-  //   href: "/subscriptions",
-  //   icon: CreditCard,
-  // },
-];
+type NavItem = {
+  title: string;
+  href?: string;
+  icon: React.FC<any>;
+  onClick?: () => void;
+};
 
-const authItems = [
-  {
-    title: "Sign In",
-    href: "/auth/sign-in",
-    icon: LogIn,
-  },
-  {
-    title: "Sign Up",
-    href: "/auth/sign-up",
-    icon: UserPlus,
-  },
+// 🌐 Main Navigation Links
+const navItems: NavItem[] = [
+  { title: "Dashboard", href: "/dashboard", icon: House },
+  { title: "Sites", href: "/profile", icon: Table },
+  { title: "Alerts", href: "/notifications", icon: Bell },
 ];
 
 export function Sidebar({ onClose }: { onClose?: () => void }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [collapsed, setCollapsed] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false); // ⚙️ Dropdown toggle
+
+  const handleSignOut = async () => {
+    if (logout) {
+      await logout();
+      navigate("/auth/sign-in");
+    }
+  };
 
   return (
-    <aside className="w-60 bg-white lg:bg-transparent flex flex-col relative z-10 h-full border-r border-stone-200 lg:border-0">
-      {/* Brand Header */}
+    <aside
+      className={cn(
+        "bg-white lg:bg-transparent flex flex-col relative z-10 h-full border-r border-stone-200 transition-all duration-300",
+        collapsed ? "w-16" : "w-60"
+      )}
+    >
+      {/* ===== Header ===== */}
       <div className="p-6 pb-0 relative z-10 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-stone-900">
-          Swiftleb Monitoring
-        </h1>
-        {/* Close button for mobile */}
-        {onClose && (
+        {!collapsed && (
+          <h1 className="text-lg font-semibold text-stone-900 truncate">
+            {user ? `Welcome ${user.displayName || "User"}` : "Swiftlet Admin"}
+          </h1>
+        )}
+        <div className="flex items-center gap-2">
+          {/* Collapse toggle */}
           <Button
             variant="ghost"
             size="sm"
-            onClick={onClose}
-            className="lg:hidden p-1 text-stone-600 hover:text-stone-900 hover:bg-stone-100"
+            onClick={() => setCollapsed(!collapsed)}
+            className="p-1 text-stone-600 hover:text-stone-900 hover:bg-stone-100"
           >
-            <X className="h-5 w-5" />
+            {collapsed ? (
+              <ChevronRight className="h-5 w-5" />
+            ) : (
+              <ChevronLeft className="h-5 w-5" />
+            )}
           </Button>
-        )}
+
+          {/* Close for mobile */}
+          {onClose && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="lg:hidden p-1 text-stone-600 hover:text-stone-900 hover:bg-stone-100"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          )}
+        </div>
       </div>
 
-      {/* Navigation */}
+      {/* ===== Navigation ===== */}
       <nav className="flex-1 p-4 space-y-2 relative z-10">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.href;
-          
+
           return (
             <NavLink key={item.href} to={item.href}>
               <div
                 className={cn(
-                  "flex items-center text-sm font-normal rounded-lg cursor-pointer",
+                  "flex items-center text-sm font-normal rounded-lg cursor-pointer gap-3",
+                  collapsed && "justify-center",
                   isActive
-                    ? "px-3 py-2 shadow-sm hover:shadow-md bg-stone-800 hover:bg-stone-700 relative bg-gradient-to-b from-stone-700 to-stone-800 border border-stone-900 text-stone-50 hover:bg-gradient-to-b hover:from-stone-800 hover:to-stone-800 hover:border-stone-900 after:absolute after:inset-0 after:rounded-[inherit] after:box-shadow after:shadow-[inset_0_1px_0px_rgba(255,255,255,0.25),inset_0_-2px_0px_rgba(0,0,0,0.35)] after:pointer-events-none duration-300 ease-in align-middle select-none font-sans text-center antialiased"
+                    ? "px-3 py-2 shadow-sm hover:shadow-md bg-stone-800 text-white border border-stone-900 transition-all duration-200"
                     : "px-3 py-2 text-stone-700 hover:bg-stone-100 transition-colors duration-200 border border-transparent"
                 )}
               >
-                <Icon className="mr-3 w-4 h-4" />
-                {item.title}
+                <Icon className="w-5 h-5 shrink-0" />
+                {!collapsed && <span>{item.title}</span>}
               </div>
             </NavLink>
           );
         })}
 
-        {/* Auth Section */}
+        {/* ===== ⚙️ Settings Dropdown ===== */}
         <div className="pt-4 border-t border-stone-200 mt-4">
-          <p className="px-4 text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">
-            AUTH PAGES
-          </p>
-          {authItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.href;
-            
-            return (
-              <NavLink key={item.href} to={item.href}>
-                <div
-                  className={cn(
-                    "flex items-center text-sm font-normal rounded-lg cursor-pointer",
-                    isActive
-                      ? "px-3 py-2 shadow-sm hover:shadow-md bg-stone-800 hover:bg-stone-700 relative bg-gradient-to-b from-stone-700 to-stone-800 border border-stone-900 text-stone-50 hover:bg-gradient-to-b hover:from-stone-800 hover:to-stone-800 hover:border-stone-900 after:absolute after:inset-0 after:rounded-[inherit] after:box-shadow after:shadow-[inset_0_1px_0px_rgba(255,255,255,0.25),inset_0_-2px_0px_rgba(0,0,0,0.35)] after:pointer-events-none duration-300 ease-in align-middle select-none font-sans text-center antialiased"
-                      : "px-3 py-2 text-stone-700 hover:bg-stone-100 transition-colors duration-200 border border-transparent"
-                  )}
-                >
-                  <Icon className="mr-3 w-4 h-4" />
-                  {item.title}
-                </div>
-              </NavLink>
-            );
-          })}
-        </div>
+          <button
+            onClick={() => setSettingsOpen(!settingsOpen)}
+            className={cn(
+              "flex items-center text-sm font-medium rounded-lg cursor-pointer gap-3 w-full px-3 py-2 transition-all",
+              collapsed
+                ? "justify-center"
+                : "justify-between hover:bg-stone-100 text-stone-700"
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <Settings className="w-5 h-5 text-stone-700" />
+              {!collapsed && <span>Settings</span>}
+            </div>
+            {!collapsed && (
+              <span className="text-stone-500 text-xs">
+                {settingsOpen ? "▲" : "▼"}
+              </span>
+            )}
+          </button>
 
-        {/* Documentation Link */}
-        <div className="mt-auto pt-4 border-t border-stone-200">
-          <NavLink to="/documentation">
+          {/* Dropdown items */}
+          {settingsOpen && (
             <div
               className={cn(
-                "flex items-center text-sm font-normal rounded-lg cursor-pointer",
-                location.pathname === "/documentation"
-                  ? "px-3 py-2 shadow-sm hover:shadow-md bg-stone-800 hover:bg-stone-700 relative bg-gradient-to-b from-stone-700 to-stone-800 border border-stone-900 text-stone-50 hover:bg-gradient-to-b hover:from-stone-800 hover:to-stone-800 hover:border-stone-900 after:absolute after:inset-0 after:rounded-[inherit] after:box-shadow after:shadow-[inset_0_1px_0px_rgba(255,255,255,0.25),inset_0_-2px_0px_rgba(0,0,0,0.35)] after:pointer-events-none duration-300 ease-in align-middle select-none font-sans text-center antialiased"
-                  : "px-3 py-2 text-stone-700 hover:bg-stone-100 transition-colors duration-200"
+                "ml-6 mt-2 space-y-1 transition-all duration-200",
+                collapsed && "hidden"
               )}
             >
-              <BookOpen className="mr-3 w-4 h-4" />
-              Documentation
+              <NavLink
+                to="/auth/sign-up"
+                className="flex items-center text-sm text-stone-700 hover:text-blue-700 transition-colors gap-2"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Add User</span>
+              </NavLink>
+
+              <button
+                onClick={handleSignOut}
+                className="flex items-center text-sm text-red-600 hover:text-red-700 gap-2 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sign Out</span>
+              </button>
             </div>
-          </NavLink>
+          )}
         </div>
       </nav>
-
     </aside>
   );
 }
